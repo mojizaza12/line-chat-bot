@@ -1,16 +1,13 @@
 // app/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "sonner" // Import toast from sonner
 import { Checkbox } from "@/components/ui/checkbox"
-import { useTheme } from "next-themes"
 import {
     Form,
     FormControl,
@@ -20,7 +17,6 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
     Popover,
     PopoverContent,
@@ -31,12 +27,16 @@ import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { CalendarIcon } from "@radix-ui/react-icons"
-import { DatePicker } from "@/components/date-picker"
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+
+interface ClientBillFormProps {
+    imageUrl: string | null;
+}
 
 const FormSchema = z.object({
     category: z.string().min(2, {
@@ -50,10 +50,8 @@ const FormSchema = z.object({
 })
 
 export default function BillForm() {
-    const router = useRouter();
-    const { imageUrl } = router.query;  // Get imageUrl from query params
-    const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
-
+    const searchParams = useSearchParams();
+    const imageUrl = searchParams.get('imageUrl');
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -198,7 +196,7 @@ export default function BillForm() {
                                                             checked={field.value?.includes(member.id)}
                                                             onCheckedChange={(checked) => {
                                                                 return checked
-                                                                    ? field.onChange([...(field.value || []), member.id])
+                                                                    ? field.onChange([...field.value, member.id])
                                                                     : field.onChange(field.value?.filter((value) => value !== member.id))
                                                             }}
                                                         />
